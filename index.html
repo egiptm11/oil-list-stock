@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.3/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/v/bs5/jqc-1.12.4/dt-1.13.1/datatables.min.css" />
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/fixedheader/3.3.1/css/fixedHeader.bootstrap.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/responsive/2.4.0/css/responsive.bootstrap.min.css">
+    <title>List of Nihonseiki Japan Oil Stocks</title>
+
+    <style>
+        /* Efek bayangan pada judul */
+        .container h3 {
+            box-shadow: 3px 3px brown, -1em 0 .4em gray;
+            border-radius: 8px;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <h3 class="text-center mb-4 mt-4">List of Nihonseiki Japan Oil Stocks</h3>
+
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-primary" id="tambahProduk">
+                    + Additional Products
+                </button>
+                <br>
+                <br>
+                <table id="table_data" class="table table-striped table-bordered mt-2 mb-2" style="width: 100%"></table>
+                <br />
+                <br />
+            </div>
+        </div>
+    </div>
+    <!-- The Modal -->
+    <div class="modal" id="myModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Additional Products</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <form>
+                        <input type="hidden" class="form-control" id="idProduk">
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">Product Name</label>
+                            <input type="text" class="form-control" id="namaProduk" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">Stock</label>
+                            <input type="text" class="form-control" id="stokProduk" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">Price</label>
+                            <input type="text" class="form-control" id="hargaProduk" required>
+                        </div>
+
+                    </form>
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Save</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript"
+        src="https://cdn.datatables.net/v/bs5/jqc-1.12.4/dt-1.13.1/datatables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.3/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.3/js/dataTables.bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/fixedheader/3.3.1/js/dataTables.fixedHeader.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.4.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.4.0/js/responsive.bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const BASE_URL = "https://script.google.com/macros/s/AKfycbxN1EhL-Cuyvux2wq5i7itlIJCCg6XnDC01Yn6CnZLO2AJS8fMGGIDxLJyzkUy-6N5_jA/exec";
+
+            const table = $("#table_data").DataTable({
+                ajax: BASE_URL + "?action=get-product",
+                columns: [
+                    {
+                        title: "ID",
+                        data: "id"
+                    },
+                    {
+                        title: "Names",
+                        data: "nama"
+                    },
+                    {
+                        title: "Stocks",
+                        data: "stok"
+                    },
+                    {
+                        title: "Prices",
+                        data: "harga"
+                    },
+                    {
+                        title: "Edit",
+                        targets: -1,
+                        data: null,
+                        defaultContent: '<button class="btn btn-warning" id="edit">Edit</button>'
+                    },
+                    {
+                        title: "Delete",
+                        data: null,
+                        defaultContent: '<button class="btn btn-danger delete">Delete</button>'
+                    }
+                ],
+
+                rowId: "id",
+                liveAjax: true,
+                responsive: true
+            })
+
+            $('#tambahProduk').on('click', () => {
+                clear();
+                $('#myModal').modal('show');
+                $('#myModal .modal-title').text('Additional Products');
+            })
+
+            $('#table_data tbody').on('click', '#edit', function () {
+                const data = table.row($(this).parents('tr')).data();
+                console.log(data);
+                $('#idProduk').val(data.id);
+                $('#namaProduk').val(data.nama);
+                $('#stokProduk').val(data.stok);
+                $('#hargaProduk').val(data.harga);
+                $('#myModal').modal('show');
+                $('#myModal .modal-title').text('Edit Product');
+            })
+
+            $('#table_data tbody').on('click', '.delete', function () {
+                const data = table.row($(this).parents('tr')).data();
+                const idProduk = data.id;
+                if (confirm("Are you sure you want to delete this product?")) {
+                    const apiUrl = `${BASE_URL}?action=delete&id=${idProduk}`;
+                    $.getJSON(apiUrl, function (result) {
+                        alert(result.message);
+                        location.reload();
+                    })
+                }
+            })
+            $('.modal-footer .btn-success').on('click', () => {
+                const namaProduk = $('#namaProduk').val();
+                const stokProduk = $('#stokProduk').val();
+                const hargaProduk = $('#hargaProduk').val();
+                const idProduk = $('#idProduk').val();
+
+                if (namaProduk == '' || stokProduk == '' || hargaProduk == '') {
+                    alert('Please complete all field !')
+                    return
+                }
+
+                let apiUrl = '';
+
+                if (idProduk) {
+                    apiUrl = `${BASE_URL}?action=update&nama=${namaProduk}&stok=${stokProduk}&harga=${hargaProduk}&id=${idProduk}`;
+                } else {
+                    apiUrl = `${BASE_URL}?action=insert&nama=${namaProduk}&stok=${stokProduk}&harga=${hargaProduk}`;
+                }
+
+                $.getJSON(apiUrl, function (result) {
+                    alert(result.message);
+                    location.reload();
+                })
+            })
+        })
+
+        function clear() {
+            $('#idProduk').val('');
+            $('#namaProduk').val('');
+            $('#stokProduk').val('');
+            $('#hargaProduk').val('');
+        }
+    </script>
+</body>
+
+</html>
